@@ -4,12 +4,14 @@
 
 このスクリプトを実行するために、必要な Python ライブラリをインストールしてください。
 
-pip install gspread oauth2client
+pip3 install gspread oauth2client ~~~
+
 （あとでいろいろ追記する）
 
 ### 2. 認証情報の設定
 
 Google スプレッドシート API を使用するために、認証情報 (`credentials.json`) を用意してください。
+
 （ここの用意の仕方あとでもっと細かく追記する）
 
 - `credentials.json` は Google Cloud Console で取得できます。
@@ -21,7 +23,9 @@ Google スプレッドシート API を使用するために、認証情報 (`cr
 ### 4. スクリプトの実行
 
 スクリプトを実行して、スプレッドシートにデータを書き込むことができます。
+
 実行時に標準入力で時刻を"HH:MM"方式で入力
+
 例：python3 attendance.py 13:00
 
 ## 動作の流れ
