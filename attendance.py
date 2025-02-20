@@ -1,15 +1,17 @@
-import nfc
+import sys
+import os
 import re
+import time
+import json
+from datetime import datetime, timedelta
+
+import nfc
 import gspread
 import pygame
-from google.oauth2.service_account import Credentials
-from datetime import datetime, timedelta
-import sys
 import requests
-import json
-import time
-import dotenv import load_dotenv
-import os
+from dotenv import load_dotenv
+
+from google.oauth2.service_account import Credentials
 
 # .envの読み込み
 load_dotenv()
@@ -42,7 +44,6 @@ if len(sys.argv) < 2:
 
 mtg_start_time = datetime.strptime(sys.argv[1], "%H:%M")
 late_time = mtg_start_time + timedelta(minutes=10)
-cutoff_time = mtg_start_time + timedelta(hours=1)
 
 def send_slack_notification(message):
     payload = {"text": message}
@@ -99,4 +100,4 @@ while True:
         continue
     finally:
         clf.close()
-    time.sleep(2)
+    time.sleep(2) # 2秒おきにカードを読み取る
