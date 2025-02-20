@@ -1,0 +1,9 @@
+# 機密ファイル
+.credentials.json
+.env
+
+# 試行錯誤してるだけのフォルダを無視
+try_and_error/
+
+# Mac特有の無駄なファイルを無視
+.DS_Store
