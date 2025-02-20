@@ -18,7 +18,7 @@ if len(sys.argv) < 2:
     print("使用法: python3 attendance.py HH:MM")
     sys.exit(1)
 
-# .envの読み込み
+# .envファイルの読み込み
 load_dotenv()
 
 # Google Sheets API 認証設定
