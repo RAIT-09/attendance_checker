@@ -4,9 +4,11 @@
 
 このスクリプトを実行するために、必要な Python ライブラリをインストールしてください。
 
-pip3 install gspread oauth2client ~~~
+python3 -m pip install --upgrade pip
 
-（あとでいろいろ追記する）
+python3 -m pip install nfcpy gspread pygame requests python-dotenv google-auth
+
+それぞれNFC、スプレッドシートAPI、音声ファイルの読み込み、HTTPリクエスト、envファイルの読み込み、Google Cloudのサービスへのアクセス、をするためのライブラリ
 
 ### 2. 認証情報の設定
 
