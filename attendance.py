@@ -63,6 +63,14 @@ def ensure_mtg_date():
 ensure_mtg_date()
 send_slack_notification(f"<!channel>\n出席をとります（MTG開始時刻: {mtg_start_time.strftime('%H:%M')}）")
 
+def is_already_checked_in(student_id):
+    records = worksheet.get_all_values()
+    today = datetime.now().strftime("%Y-%m-%d")
+    for row in records:
+        if len(row) >= 3 and row[0] == student_id and row[2].startswith(today):
+            return True
+    return False
+
 def on_connect(tag):
     try:
         dump_data = tag.dump()
@@ -74,6 +82,10 @@ def on_connect(tag):
         if not student_id or not name:
             raise ValueError("無効なカード")
 
+        if is_already_checked_in(student_id):
+            print(f"{name} ({student_id}) はすでに出席済みです。")
+            return
+            
         now = datetime.now()
         status = "出席" if now <= late_time else "遅刻"
         worksheet.append_row([student_id, name, now.strftime("%Y-%m-%d %H:%M:%S"), status])
