@@ -40,11 +40,11 @@ WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 
 # SEの初期化
 pygame.mixer.init()
-se_success = pygame.mixer.Sound("scan_success.wav")             # 成功SE
-se_error = pygame.mixer.Sound("scan_error.wav")                 # エラーSE
-se_already_checked = pygame.mixer.Sound("already_checked.wav")  # 出席済みSE
+se_success = pygame.mixer.Sound("se/scan_success.wav")             # 成功SE
+se_error = pygame.mixer.Sound("se/scan_error.wav")                 # エラーSE
+se_already_checked = pygame.mixer.Sound("se/already_checked.wav")  # 出席済みSE
 
-# 今日の日付を一度だけ取得
+# 今日の日付を取得
 today = datetime.now().strftime("%-m/%-d")  # "MM/DD" 形式
 
 # MTG開始時刻と遅刻判定時刻を計算
