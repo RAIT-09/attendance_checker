@@ -1,0 +1,6 @@
+nfcpy
+gspread
+pygame
+requests
+python-dotenv
+google-auth

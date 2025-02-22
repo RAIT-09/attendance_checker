@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 
 import nfc
 import gspread
-import pygame
 import requests
 from dotenv import load_dotenv
 
@@ -39,12 +38,6 @@ worksheet = sh.sheet1
 SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
 ATTENDANCE_CHANNEL_ID = os.getenv("ATTENDANCE_CHANNEL_ID")
 SLACK_API_URL = "https://slack.com/api/chat.postMessage"
-
-# SEの初期化
-pygame.mixer.init()
-se_success = pygame.mixer.Sound("se/scan_success.wav")             # 成功SE
-se_error = pygame.mixer.Sound("se/scan_error.wav")                 # エラーSE
-se_already_checked = pygame.mixer.Sound("se/already_checked.wav")  # 出席済みSE
 
 # 今日の日付を取得
 today = datetime.now().strftime("%-m/%-d")  # "MM/DD" 形式
@@ -128,8 +121,6 @@ def update_attendance(student_col, student_id, name):
     else:
         send_slack_notification(f"⚠️ {name} ({student_id}) が遅刻しました（入室時刻: {entry_time}）")
 
-    se_success.play()  # 成功SEを鳴らす
-
 # NFCタグが接続された際に呼ばれる関数
 def on_connect(tag):
     try:
@@ -140,19 +131,16 @@ def on_connect(tag):
 
         if student_col is None:
             print(f"{name} ({student_id}) の学籍番号が見つかりませんでした。")
-            se_error.play()  # エラーSEを鳴らす
             return
 
         if is_already_checked_in(student_col):
-            se_already_checked.play()  # 出席済みSEを鳴らす
             print(f"{name} ({student_id}) はすでに出席しています．")
             return
         
         update_attendance(student_col, student_id, name)
 
     except Exception as e:
-        print(f"無効なカード: {e}")
-        se_error.play()  # エラーSEを鳴らす
+        print(f"無効なカード: {e}")\
 
 while True:
     try:

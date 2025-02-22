@@ -3,8 +3,8 @@
 const FORM_SHEET_ID = 'xxxxxx'; // 申請フォームの回答スプレッドシートのID
 const ATTENDANCE_SHEET_ID = 'xxxxxx'; // 出席管理スプレッドシートのID
 const SLACK_TOKEN = 'xoxb-xxxxxx'; // Slack Botのトークン
-const APPROVAL_CHANNEL = 'xxxxxxx'; // グループリーダーのDMチャンネルのID
-const ATTENDANCE_CHANNEL = 'xxxxxxx'; // 20xxgr1_attendanceチャンネルのID
+const APPROVAL_CHANNEL_ID = 'xxxxxxx'; // グループリーダーのDMチャンネルのID
+const ATTENDANCE_CHANNEL_ID = 'xxxxxxx'; // 20xxgr1_attendanceチャンネルのID
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -22,10 +22,22 @@ function onFormSubmit(e) {
   const reason = responses[4];
   const name = responses[5];
 
-  const values = attendanceSheet.getRange(3, 2, 1, attendanceSheet.getLastColumn()).getValues()[0];
-  if (!values.includes(studentId)) {
-    sendSlackMessageToChannel(APPROVAL_CHANNEL, `⚠️ ${name} さんの学籍番号 (${studentId}) が登録されていません。\n番号が正しいか確認し、再申請してください。`, null);
-    return;
+  const dataRange = attendanceSheet.getDataRange();
+  const values = dataRange.getValues();
+  
+  // 学籍番号がシートに存在するかチェック
+  let studentExists = false;
+  for (let j = 1; j < values[2].length; j++) { // 3行目から学籍番号列を探す
+    if (values[2][j] == studentId) { // 学籍番号が一致したら
+      studentExists = true;
+      break;
+    }
+  }
+
+  // 学籍番号が存在しない場合、エラーメッセージを表示
+  if (!studentExists) {
+    sendSlackMessageToChannel(APPROVAL_CHANNEL_ID, `⚠️ ${name} さんの学籍番号 (${studentId}) が登録されていません。\n番号が正しいか確認し、再申請してください。`, null);
+    return; // 処理を終了
   }
 
   sendApprovalRequestToSlack(studentId, mtgDate, status, reason, name);
@@ -46,7 +58,7 @@ function sendApprovalRequestToSlack(studentId, mtgDate, status, reason, name) {
     }
   ];
 
-  sendSlackMessageToChannel(APPROVAL_CHANNEL, messageText, attachments);
+  sendSlackMessageToChannel(APPROVAL_CHANNEL_ID, messageText, attachments);
 }
 
 // Slack にメッセージを送信する汎用関数
@@ -95,7 +107,7 @@ function doPost(e) {
       text: `✅ ${name} (${studentId}) の ${mtgDate} における ${status} を **承認** しました！\n(理由: ${reason})`
     };
 
-    // sendSlackMessageToChannel(ATTENDANCE_CHANNEL, `✅ ${name} (${studentId}) の${mtgDate}における${status}が承認されました\n(理由：${reason})`, null);
+    sendSlackMessageToChannel(ATTENDANCE_CHANNEL_ID, `✅ ${name} (${studentId}) の${mtgDate}における${status}が承認されました\n(理由：${reason})`, null);
   } else {
     newMessage = {
       replace_original: true,
@@ -107,7 +119,7 @@ function doPost(e) {
       text: `❌ ${name} (${studentId}) の ${mtgDate} における ${status} を **拒否** しました！`
     };
 
-    sendSlackMessageToChannel(ATTENDANCE_CHANNEL, `❌ ${name} (${studentId}) の${mtgDate}における${status}が否認されました`, null);
+    sendSlackMessageToChannel(ATTENDANCE_CHANNEL_ID, `❌ ${name} (${studentId}) の${mtgDate}における${status}が否認されました`, null);
   }
 
   UrlFetchApp.fetch(responseUrl, {
@@ -125,10 +137,13 @@ function writeToAttendanceSheet(mtgDate, studentId, status) {
   const dataRange = sheet.getDataRange();
   const values = dataRange.getValues();
 
+  const mtgDateObj = new Date(mtgDate);
   // A列（4行目以降）からmtgDateを探す
   let dateRow = -1;
   for (let i = 3; i < values.length; i++) {
-    if (values[i][0] == mtgDate) {
+    const sheetDateObj = new Date(values[i][0]);
+    if (sheetDateObj.getMonth() === mtgDateObj.getMonth() &&
+        sheetDateObj.getDate() === mtgDateObj.getDate()) {
       dateRow = i + 1; // シート上の行番号
       break;
     }
@@ -152,7 +167,6 @@ function writeToAttendanceSheet(mtgDate, studentId, status) {
   // statusを書き込む
   sheet.getRange(dateRow, studentCol).setValue(status);
 }
-
 
 // Slack に通知を送る
 function sendSlackMessage(channel, message) {

@@ -1,0 +1,16 @@
+# git関連
+.git/
+.gitattributes
+.gitignore
+
+# Docker関連
+Dockerfile
+.dockerignore
+
+# 特定のファイルやディレクトリを無視
+.env.example
+README.md
+try_and_error/
+form.gs
+attendance.py
+se/
