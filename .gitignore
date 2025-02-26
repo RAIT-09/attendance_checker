@@ -1,6 +1,6 @@
 # 機密ファイル
-.credentials.json
 .env
+credentials.json
 
 # 試行錯誤してるだけのフォルダを無視
 try_and_error/

@@ -21,17 +21,17 @@ if len(sys.argv) < 2:
 load_dotenv()
 
 # Google Sheets API 認証設定
-SHEET_ID = os.getenv("SHEET_ID")
+ATTENDANCE_SHEET_ID = os.getenv("ATTENDANCE_SHEET_ID")
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
 ]
-CREDENTIALS_FILE = "./.credentials.json"
+CREDENTIALS_FILE = "./credentials.json"
 
 # Google Sheetsの認証
 credentials = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=SCOPE)
 gc = gspread.authorize(credentials)
-sh = gc.open_by_key(SHEET_ID)
+sh = gc.open_by_key(ATTENDANCE_SHEET_ID)
 worksheet = sh.sheet1
 
 # Slack APIを操作するための準備
