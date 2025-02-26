@@ -42,7 +42,7 @@ python3 -m pip install nfcpy gspread pygame requests python-dotenv google-auth
 
 ## 1-2. Windows版環境構築
 ### 環境構築
-1. ターミナルを開いてこのプロジェクトフォルダに移動
+1. ターミナルを開いてプロジェクトフォルダに移動
 
 例↓
 ```sh
@@ -61,15 +61,15 @@ docker build -t attendance-app .
 1. `App Name`は`gr1-attendance-announce-bot`等妥当な名前をつける
 1. ワークスペースを選択し，Botを作成する
 1. 左のメニューから`OAuth & Permissions`を開き，少し下にある`Scopes`の`Bot Token Scopes`に追加で`Chat:write`の権限を与える
-1. ページ上部にスクロールしてワークスペースにインストールをクリックしてインストール
+1. ページ上部にスクロールして`Install to your_workspace_name`をクリックしてインストール
 1. インストール後，`Bot User OAuth Token`をあとで使うのでメモしておく
 ### Slack BotとのDMの開放
-1. [Slack Marketplace](https://rm2c2024.slack.com/marketplace)を開く
+1. [Slack Marketplace](https://slack.com/marketplace)を開く
 1. `Manage`を選択
 1. `Instlled apps`内のBot一覧から作成したBotを選択
 1. `App Details`を選択
 1. `Open in Slack`を選択
-1. BotとのDMチャンネルが開放されるので，この`チャンネルID`をメモしておく
+1. 作成したSlack BotとのDMチャンネルが開放されるので，この`チャンネルID`をメモしておく
 ## 学生が出席状況を確認するためのチャンネルの作成
 1. チャンネルを作成
    - チャンネル名は自由だが，`20xxgr1-attendance` 等妥当な名前にする
@@ -81,9 +81,10 @@ docker build -t attendance-app .
 ## Googleスプレッドシートの準備
 1. Googleアカウントを用意
 2. `出席管理シート_template.xmsx`を`Google Drive`にアップロード
-3. A0セルの説明を参考に，学籍番号と名前を入力する
+3. A0セルの説明を参考に，出席管理対象の学籍番号と名前を入力する
+   - 他のセルは絶対に触らない
 4. 出席管理スプレッドシートの `sheetID` をあとで使うのでメモしておく
-   - URLの `d/` と `/edit` の間の文字列
+   - `sheetID`：URLの `d/` と `/edit` の間の文字列
 
 ## Google Cloud Platformの設定
 1. [Google Cloud Platform](https://console.cloud.google.com/) にアクセス
@@ -95,9 +96,9 @@ docker build -t attendance-app .
 ## 認証情報の設定
 1. `OAuth同意画面` から `開始`
    - アプリ名：自由
-   - ユーザーサポートメール：作成したGoogleアカウント
+   - ユーザーサポートメール：作成したGoogleアカウントが無難
    - 対象：`外部`
-   - 連絡先情報：作成したGoogleアカウント
+   - 連絡先情報：作成したGoogleアカウントが無難
 2. 作成を押す
 3. `APIとサービス` → `認証情報` → `認証情報を作成`
    - `サービスアカウント` を選択
@@ -160,9 +161,10 @@ const ATTENDANCE_CHANNEL_ID = （20xxgr1_attendanceチャンネルのID）
       - この時も同様に，警告が出ることがあるが，無視して進んで良い
 
 # 4. `.env` ファイルの作成
-`.env.example` を参考に，さきほどメモした情報を `.env` に記述
+1. `.env`ファイルをプロジェクトのルートディレクトリに作成
+1. `.env.example` ファイルを参考に，さきほどメモした情報を `.env` ファイルに記述
 ```sh
-SHEET_IDv =（スプレッドシートID）
+ATTENDANCE_SHEET_ID =（スプレッドシートID）
 SLACK_BOT_TOKEN = （作成したBotのトークン）
 ATTENDANCE_CHANNEL_ID =  （attendanceチャンネルのID）
 LATE_TIME_MINUTES = （遅刻判定になる分）
@@ -170,19 +172,16 @@ LATE_TIME_MINUTES = （遅刻判定になる分）
 
 # 実行手順
 ## 5-1. Linux系PC実行手順
-1. VS Codeでプロジェクトフォルダを開く
-2. ターミナルを開く
-3. MTG開始時刻を入力して `attendance.py` を実行
+1. ターミナルを開いてプロジェクトフォルダを開く
+1. MTG開始時刻を入力して `attendance.py` を実行
 ```sh
 python3 attendance.py 13:00
 ```
-4. 終了時は `Ctrl + C` で強制終了
+1. 終了時は `Ctrl + C` で強制終了
 
 ## 5-2. Docker実行手順
-標準入力にMTG開始時刻を入力してコンテナを起動
-
-例 ↓
+1. 標準入力にMTG開始時刻を入力してコンテナを起動
 ```sh
 docker run --rm --device=/dev/bus/usb:/dev/bus/usb attendance-app 13:00
 ```
-終了時は `Ctrl + C` で強制終了
+1.終了時は `Ctrl + C` で強制終了
