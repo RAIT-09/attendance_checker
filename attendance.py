@@ -92,11 +92,11 @@ def send_slack_notification(message):
 send_slack_notification(f"<!channel>\n出席をとります（MTG開始時刻: {mtg_start_time.strftime('%H:%M')}）")
 
 # 立命館の学生証を読み取るための定数
-SYSTEM_CODE  = os.getenv("SYSTEM_CODE")
-SERVICE_CODE_NUM  = os.getenv("SERVICE_CODE_NUM")
-SERVICE_ATTRIBUTE  = os.getenv("SERVICE_ATTRIBUTE")
-BLOCK_CODE_NUM_STUDENT_ID  = os.getenv("BLOCK_CODE_NUM_STUDENT_ID")
-BLOCK_CODE_NUM_STUDENT_NAME  = os.getenv("BLOCK_CODE_NUM_STUDENT_NAME")
+SYSTEM_CODE = 0xfe00 # Systemの共通領域
+SERVICE_CODE_NUM = 106
+SERVICE_ATTRIBUTE = 0x0b # 0x001011（Read Only Access without key）
+BLOCK_CODE_NUM_STUDENT_ID = 0
+BLOCK_CODE_NUM_STUDENT_NAME = 1
 
 # 指定されたNFCのブロックからshift-jisデコードして中身を返す関数
 def read_data_block(tag: Type3Tag, block_code_num: int) -> str:
