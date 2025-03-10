@@ -83,7 +83,7 @@ docker build -t attendance-app .
 1. `出席管理シート_template.xmsx`を`Google Drive`にアップロード
 1. エクセルファイルを開いた後，`File` > `Save as Google Sheets`を選択し，Google Sheetに変換
 1. 変換されたスプレッドシート名を適当な名前に変更する
-1. A0セルの説明を参考に，出席管理対象の学籍番号と名前を入力する
+1. A1セルの説明を参考に，出席管理対象の学籍番号と名前および遅刻判定時間を入力する
    - 他のセルは絶対に触らない
 1. 出席管理スプレッドシートの `sheetID` をあとで使うのでメモしておく
    - `sheetID`：URLの `d/` と `/edit` の間の文字列
@@ -169,7 +169,6 @@ const ATTENDANCE_CHANNEL_ID = （20xxgr1_attendanceチャンネルのID）
 ATTENDANCE_SHEET_ID =（スプレッドシートID）
 SLACK_BOT_TOKEN = （作成したBotのトークン）
 ATTENDANCE_CHANNEL_ID =  （attendanceチャンネルのID）
-LATE_TIME_MINUTES = （遅刻判定になる分）
 ```
 
 # 実行手順

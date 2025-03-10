@@ -6,7 +6,11 @@ import json
 from datetime import datetime, timedelta
 
 import nfc
+from nfc.tag import Tag
+from nfc.tag.tt3 import BlockCode, ServiceCode, Type3Tag
+from nfc.tag.tt3_sony import FelicaStandard
 import gspread
+import pygame
 import requests
 from dotenv import load_dotenv
 
@@ -44,13 +48,12 @@ today = datetime.now().strftime("%-m/%-d")  # "MM/DD" 形式
 
 # MTG開始時刻と遅刻判定時刻を計算
 mtg_start_time = datetime.strptime(sys.argv[1], "%H:%M")
-LATE_TIME_MINUTES = int(os.getenv("LATE_TIME_MINUTES", 10))
+records = worksheet.get_all_values()
+LATE_TIME_MINUTES = int(records[1][1]) # スプレッドシートのB2セルから遅刻判定時間を取得
 late_time = (mtg_start_time + timedelta(minutes=LATE_TIME_MINUTES)).time()
 
 # MTG日時をスプレッドシートに更新
 def ensure_mtg_date():
-    records = worksheet.get_all_values()
-
     for i, row in enumerate(records[3:], start=4):
         if row[0] == today:
             worksheet.update_cell(i, 2, sys.argv[1])  # 時刻を更新
@@ -81,18 +84,31 @@ def send_slack_notification(message):
 
 send_slack_notification(f"<!channel>\n出席をとります（MTG開始時刻: {mtg_start_time.strftime('%H:%M')}）")
 
-# 学生証のデータを抽出
-def extract_card_data(tag):
-    dump_data = tag.dump()
-    student_id = dump_data[13].split('|')[1][2:13].strip()
-    hex_data = re.sub(r'[^0-9a-fA-F ]', '', dump_data[14]).strip()
-    byte_data = bytes.fromhex(hex_data)
-    name = byte_data.decode("shift_jis", errors="ignore").strip()
+# 立命館の学生証を読み取るための定数
+SYSTEM_CODE = 0xfe00 # Systemの共通領域
+SERVICE_CODE_NUM = 106
+SERVICE_ATTRIBUTE = 0x0b # 0x001011（Read Only Access without key）
+BLOCK_CODE_NUM_STUDENT_ID = 0
+BLOCK_CODE_NUM_STUDENT_NAME = 1
 
-    if not student_id or not name:
-        raise ValueError("無効なカード")
+# 指定されたNFCのブロックからshift-jisデコードして中身を返す関数
+def read_data_block(tag: Type3Tag, block_code_num: int) -> str:
+    service_code = ServiceCode(SERVICE_CODE_NUM, SERVICE_ATTRIBUTE)
+    block_code = BlockCode(block_code_num, 0) # '0'は1つだけブロックを読み込む
+    read_bytearray = tag.read_without_encryption([service_code], [block_code])
+    read_data = read_bytearray.decode("shift_jis")
+    return read_data
 
-    return student_id, name
+# 学籍番号を返す関数
+def get_student_id(tag: Type3Tag) -> int:
+    student_id = read_data_block(tag, BLOCK_CODE_NUM_STUDENT_ID)
+    student_id = student_id[2:-3] # スライスで必要な部分だけ切り出す
+    return student_id
+
+# 半角ｶﾅ名を返す関数
+def get_student_name(tag: Type3Tag) -> str:
+    student_name = read_data_block(tag, BLOCK_CODE_NUM_STUDENT_NAME)
+    return student_name
 
 # 学生の学籍番号に対応する列を検索
 def find_student_column(records, student_id):
@@ -122,34 +138,41 @@ def update_attendance(student_col, student_id, name):
         send_slack_notification(f"⚠️ {name} ({student_id}) が遅刻しました（入室時刻: {entry_time}）")
 
 # NFCタグが接続された際に呼ばれる関数
-def on_connect(tag):
-    try:
-        student_id, name = extract_card_data(tag)
-        
+def on_connect(tag: Tag) -> bool:
+    print("connected")
+    # カードがFeliCaでかつシステムコードが存在する場合
+    if (isinstance(tag, FelicaStandard) 
+        and SYSTEM_CODE in tag.request_system_code()):
+        tag.idm, tag.pmm, *_ = tag.polling(SYSTEM_CODE)
+        student_id = get_student_id(tag)
+        student_name = get_student_name(tag)
         records = worksheet.get_all_values()
         student_col = find_student_column(records, student_id)
 
         if student_col is None:
-            print(f"{name} ({student_id}) の学籍番号が見つかりませんでした。")
-            return
+            print(f"{student_name} ({student_id}) の学籍番号が見つかりませんでした。")
+            return True
 
         if is_already_checked_in(student_col):
-            print(f"{name} ({student_id}) はすでに出席しています．")
-            return
+            print(f"{student_name} ({student_id}) はすでに出席しています．")
+            return True
         
-        update_attendance(student_col, student_id, name)
+        update_attendance(student_col, student_id, student_name)
+    else:
+        print(f"無効なカードが読み取られました")
 
-    except Exception as e:
-        print(f"無効なカード: {e}")\
+    return True  # Trueを返しておくとタグが存在しなくなるまで待機される
+
+def on_release(tag: Tag) -> None:
+    print("released")
 
 while True:
     try:
-        clf = nfc.ContactlessFrontend('usb')
-        clf.connect(rdwr={'on-connect': on_connect})
-    except IOError as e:
-        print(f"接続に失敗しました: {e}")
+        with nfc.ContactlessFrontend("usb") as clf:
+            try:
+                clf.connect(rdwr={"on-connect": on_connect, "on-release": on_release})
+            except Exception as e:
+                print(f"接続中にエラー: {e}")
+    except IOError:
+        print("NFCデバイスが見つかりません．1秒後に再試行します．")
         time.sleep(1)
-        continue
-    finally:
-        clf.close()
-    time.sleep(2)  # 2秒おきにカードを読み取る

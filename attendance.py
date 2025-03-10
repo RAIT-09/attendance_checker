@@ -54,13 +54,12 @@ today = datetime.now().strftime("%-m/%-d")  # "MM/DD" 形式
 
 # MTG開始時刻と遅刻判定時刻を計算
 mtg_start_time = datetime.strptime(sys.argv[1], "%H:%M")
-LATE_TIME_MINUTES = int(os.getenv("LATE_TIME_MINUTES", 10))
+records = worksheet.get_all_values()
+LATE_TIME_MINUTES = int(records[1][1]) # スプレッドシートのB2セルから遅刻判定時間を取得
 late_time = (mtg_start_time + timedelta(minutes=LATE_TIME_MINUTES)).time()
 
 # MTG日時をスプレッドシートに更新
 def ensure_mtg_date():
-    records = worksheet.get_all_values()
-
     for i, row in enumerate(records[3:], start=4):
         if row[0] == today:
             worksheet.update_cell(i, 2, sys.argv[1])  # 時刻を更新
@@ -188,4 +187,3 @@ while True:
     except IOError:
         print("NFCデバイスが見つかりません．1秒後に再試行します．")
         time.sleep(1)
-    
