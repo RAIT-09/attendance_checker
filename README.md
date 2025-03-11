@@ -58,7 +58,7 @@ docker build -t attendance-app .
 1. Slackのワークスペースに入っているブラウザで[Slack APIのサイト](https://api.slack.com/apps)を開く
 1. `create new app`を選択
 1. `From a scratch`を選択
-1. `App Name`は`gr1-attendance-announce-bot`等妥当な名前をつける
+1. `App Name`は`gr1-attendance-bot`等妥当な名前をつける
 1. ワークスペースを選択し，Botを作成する
 1. 左のメニューから`OAuth & Permissions`を開き，少し下にある`Scopes`の`Bot Token Scopes`に追加で`Chat:write`の権限を与える
 1. ページ上部にスクロールして`Install to your_workspace_name`をクリックしてインストール
@@ -72,7 +72,7 @@ docker build -t attendance-app .
 1. 作成したSlack BotとのDMチャンネルが開放されるので，この`チャンネルID`をメモしておく
 ## 学生が出席状況を確認するためのチャンネルの作成
 1. チャンネルを作成
-   - チャンネル名は自由だが，`20xxgr1-attendance` 等妥当な名前にする
+   - チャンネル名は自由だが，`gr1-attendance` 等妥当な名前にする
    - このチャンネルの`チャンネルID`をあとで使うのでメモしておく
 1. 出席管理対象の学生を全員追加
 1. `/invite @your-bot-name`コマンドをチャット欄に打ち込むことでチャンネルにBotを追加
@@ -80,7 +80,7 @@ docker build -t attendance-app .
 # 3. Google関連の設定
 ## Googleスプレッドシートの準備
 1. Googleアカウントを用意
-1. `出席管理シート_template.xmsx`を`Google Drive`にアップロード
+1. `出席管理シート_template.xlsx`を`Google Drive`にアップロード
 1. エクセルファイルを開いた後，`File` > `Save as Google Sheets`を選択し，Google Sheetに変換
 1. 変換されたスプレッドシート名を適当な名前に変更する
 1. A1セルの説明を参考に，出席管理対象の学籍番号と名前および遅刻判定時間を入力する
