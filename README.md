@@ -136,8 +136,8 @@ docker build -t attendance-app .
 const FORM_SHEET_ID = （申請フォームの回答スプレッドシートのID）
 const ATTENDANCE_SHEET_ID = （出席管理スプレッドシートのID）
 const SLACK_TOKEN = （Slack Botのトークン）
-const APPROVAL_CHANNEL_ID = （グループリーダーのDMチャンネルのID）
-const ATTENDANCE_CHANNEL_ID = （20xxgr1_attendanceチャンネルのID）
+const APPROVAL_CHANNEL_ID = （出欠申請承認者のDMチャンネルのID）
+const ATTENDANCE_CHANNEL_ID = （出欠を通知するチャンネルのID）
 ```
 
 ### WebデプロイおよびSlack Botとの連携

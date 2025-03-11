@@ -100,7 +100,7 @@ function doPost(e) {
   let newMessage;
 
   if (buttonType == "approve") {
-    writeToAttendanceSheet(mtgDate, studentId, status);
+    writeToAttendanceSheet(mtgDate, studentId, status, reason);
 
     newMessage = {
       replace_original: true,
@@ -132,7 +132,7 @@ function doPost(e) {
 }
 
 // スプレッドシートに出席を記録
-function writeToAttendanceSheet(mtgDate, studentId, status) {
+function writeToAttendanceSheet(mtgDate, studentId, status, reason) {
   const sheet = attendanceSheet;
   const dataRange = sheet.getDataRange();
   const values = dataRange.getValues();
@@ -165,7 +165,9 @@ function writeToAttendanceSheet(mtgDate, studentId, status) {
   }
 
   // statusを書き込む
-  sheet.getRange(dateRow, studentCol).setValue(status);
+  const targetCell = sheet.getRange(dateRow, studentCol);
+  targetCell.setValue(status);
+  targetCell.setComment(reason);
 }
 
 // Slack に通知を送る
