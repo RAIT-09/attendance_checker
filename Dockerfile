@@ -1,6 +1,9 @@
 # 基本となるイメージ
 FROM python:3.11-slim
 
+# タイムゾーン設定
+ENV TZ=Asia/Tokyo
+
 # 作業ディレクトリの設定
 WORKDIR /app
 
