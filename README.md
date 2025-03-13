@@ -41,6 +41,61 @@ python3 -m pip install nfcpy gspread pygame requests python-dotenv google-auth
 - `google-auth` : Google Cloudサービスへのアクセス
 
 ## 1-2. Windows版環境構築
+### 必要なもの
+NFCリーダをDocker内から使用するため，以下が必要となる．
+- `WSL (Windows Subsystem for Linux)`: 説明は割愛
+- `Docker Desktop`: 説明は割愛
+- `usbipd-win`: 後述
+
+### usbipd-winのインストール
+```powershell
+winget install --interactive --exact dorssel.usbipd-win
+```
+### USBデバイスの確認
+PowerShellで以下のコマンドを実行し，USBデバイスを確認する．
+```powershell
+usbipd list
+```
+以下の例では「BUSID」が「1-2」となっている「NFC Port/PaSoRi 100 USB」がNFCリーダである．
+```
+> usbipd list
+Connected:
+BUSID  VID:PID    DEVICE                                                      STATE
+1-2    054c:06c3  NFC Port/PaSoRi 100 USB                                       Not shared
+1-11   26ce:01a2  USB 入力デバイス                                              Not shared
+...
+```
+### デバイスのバインド・アタッチ
+PowerShellで以下のコマンドを実行し，USBデバイスをバインドする．
+```powershell
+usbipd bind --busid 1-2
+```
+PowerShellで以下のコマンドを実行し，USBデバイスをアタッチする．
+```powershell
+usbipd attach --wsl --busid 1-2
+```
+ここまでで，NFCリーダの「STATE」が「Attached」になっていればよい．
+```
+> usbipd list
+Connected:
+BUSID  VID:PID    DEVICE                                                        STATE
+1-2    054c:06c3  NFC Port/PaSoRi 100 USB                                       Attached
+1-11   26ce:01a2  USB 入力デバイス                                              Not shared
+...
+```
+### WSL側での確認
+**WSLのUbuntu**で以下のコマンドを実行し，NFCリーダが認識されることを確認する．
+```bash
+lsusb
+```
+以下のような出力が得られる．「Sony Corp. RC-S380」という記載があれば，WSL2側で認識されている．
+```
+$ lsusb
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+Bus 001 Device 002: ID 054c:06c3 Sony Corp. RC-S380
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+```
+
 ### 環境構築
 1. ターミナルを開いてプロジェクトフォルダに移動
 
