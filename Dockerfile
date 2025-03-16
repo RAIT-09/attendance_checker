@@ -11,11 +11,12 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     libusb-1.0-0-dev \
     libglib2.0-0 \
+    libpulse0 \
     && rm -rf /var/lib/apt/lists/*
 
 # アプリケーションのコピー
 COPY . /app/
-RUN mv /app/.attendance_docker.py /app/attendance.py
+# RUN mv /app/.attendance_docker.py /app/attendance.py
 
 # 必要なPythonライブラリのインストール
 RUN pip install --no-cache-dir -r requirements.txt

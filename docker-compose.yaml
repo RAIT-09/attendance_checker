@@ -1,0 +1,13 @@
+services:
+  attendance:
+    build: .
+    image: attendance-app
+    environment:
+      - SDL_AUDIODRIVER=pulseaudio
+      - PULSE_SERVER=${PULSE_SERVER}
+    volumes:
+      # Windowsホストの場合はコメントアウトを外す
+      # - /mnt/wslg/:/mnt/wslg/
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    command: "13:00"
